@@ -75,7 +75,8 @@ def main():
                     if bridge_mod == 1:
 
                         if stgs.exc_withdraw == 1:
-                            okxOp.withdraw(wallet, net_from)
+                            res, rc = okxOp.withdraw(wallet, net_from)
+                            logger.cs_logger.info(f'{res}')
 
                         bridge_vl, result = orbiterBridge.bridge(wallet, fee, net_from, net_to)
                         bridge_value += bridge_vl
@@ -87,7 +88,9 @@ def main():
                     if bridge_mod == 2:
 
                         if stgs.exc_withdraw == 1:
-                            okxOp.withdraw(wallet, nb.ethereum_network)
+                            res, rc = okxOp.withdraw(wallet, nb.ethereum_network)
+                            logger.cs_logger.info(f'{res}')
+
                         bridge_vl, result = syncBridge.bridge(wallet)
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')

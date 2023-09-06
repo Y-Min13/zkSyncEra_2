@@ -74,8 +74,10 @@ def deposit(wallet, net):
 
         balance = net.web3.eth.get_balance(wallet.address)
         remains = helper.get_random_value(settings.exc_remains[0], settings.exc_remains[1], settings.rem_digs)
+        wl_rem = helper.get_random_value(settings.deposit_remains[0], settings.deposit_remains[1], settings.deposit_digs)
+        wl_rem_wei = net.web3.to_wei(wl_rem, 'ether')
         remains_wei = int(net.web3.to_wei(remains, 'ether') * tr_mult)
-        open_balance = (balance - (gas_price * gas)) - remains_wei
+        open_balance = (balance - (gas_price * gas)) - remains_wei - wl_rem_wei
 
         if net.name == 'Optimism':
             optimism_l1_fee = int(get_optimism_l1_fee(net, b'') *

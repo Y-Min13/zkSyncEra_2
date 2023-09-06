@@ -91,9 +91,10 @@ def bridge(wallet):
             if stgs.work_mode_bridge == 2:
                 remains = helper.get_random_value(stgs.exc_remains[0], stgs.exc_remains[1],
                                                   stgs.rem_digs)
+                wl_remains = helper.get_random_value(stgs.sync_remains[0], stgs.sync_remains[1], stgs.sync_digs)
                 estimate_gas = 210000
                 bridge_value = (net_eth.web3.from_wei(balance_start_eth - (estimate_gas * gas_price) - tax, 'ether') -
-                                decimal.Decimal(remains))
+                                decimal.Decimal(remains) - decimal.Decimal(wl_remains))
                 bridge_value_wei = net_eth.web3.to_wei(bridge_value, 'ether')
                 txn = build_txn(wallet, bridge_value_wei, tax, gas_price)
                 logger.cs_logger.info(f'Делаем бридж {bridge_value} ETH')

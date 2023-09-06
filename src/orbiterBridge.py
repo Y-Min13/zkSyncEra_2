@@ -40,6 +40,7 @@ def build_txn(network_from, network_to, address, contract, value, fee):
 def bridge(wallet, fee, net_from, net_to):
     try:
         txn_status = False
+        wl_rem = 0
         optimism_l1_fee = 0
         helper.wait_bridge_gp(net_from)
         txn_hash = ''
@@ -84,8 +85,15 @@ def bridge(wallet, fee, net_from, net_to):
 
                     remains = helper.get_random_value(stgs.exc_remains[0], stgs.exc_remains[1],
                                                       stgs.rem_digs)
-                    bridge_value = (net_from.web3.from_wei(balance_from_st - (estimate_gas * gas_price) - 10000, 'ether')
-                                    - net_from.web3.from_wei(int(optimism_l1_fee * 2.1), 'ether')) - decimal.Decimal(remains)
+
+                    if net_to.name != 'zkSyncEra':
+                        wl_rem = helper.get_random_value(stgs.ob_remains2[0], stgs.ob_remains2[1], stgs.ob_digs2)
+                    else:
+                        wl_rem = helper.get_random_value(stgs.ob_remains1[0], stgs.ob_remains1[1], stgs.ob_digs1)
+
+                    bridge_value = ((net_from.web3.from_wei(balance_from_st - (estimate_gas * gas_price) - 10000, 'ether')
+                                    - net_from.web3.from_wei(int(optimism_l1_fee * 2.1), 'ether'))
+                                    - decimal.Decimal(remains) - decimal.Decimal(wl_rem))
                     bridge_value_wei = (net_from.web3.to_wei(bridge_value, 'ether')) // 10 ** 4
                     txn['value'] = bridge_value_wei * 10 ** 4 + net_to.code
                     logger.cs_logger.info(f'Делаем бридж {bridge_value} ETH')
