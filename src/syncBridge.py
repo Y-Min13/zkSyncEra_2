@@ -1,3 +1,4 @@
+import decimal
 import settings as stgs
 import src.ABIs as ABIs
 from web3 import Web3
@@ -18,11 +19,6 @@ if mode == 1:
     web3 = nB.ethereum_network.web3
     net_eth = nB.ethereum_network
     net_zks = nB.zkSyncEra_network
-if mode == 2:
-    bridge_contract_address = '0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319'
-    net_eth = nB.Network('Ethereum', 'https://eth-goerli.g.alchemy.com/v2/UZCjwGfDn6quhFr4IyJPrrwEIj9_WehN', 0)
-    net_zks = nB.Network('zkSyncEra', 'https://testnet.era.zksync.dev', 0)
-    net_gas = nB.ethereum_network
 
 contract = net_eth.web3.eth.contract(Web3.to_checksum_address(bridge_contract_address), abi=ABIs.SyncBridge_ABI)
 
@@ -67,6 +63,7 @@ def bridge(wallet):
     try:
         helper.wait_bridge_gp(nB.ethereum_network)
         result = False
+        txn_status = False
         flag = True
         txn_hash = ''
         address = wallet.address
@@ -92,8 +89,11 @@ def bridge(wallet):
                 txn = build_txn(wallet, bridge_value_wei, tax, gas_price)
                 logger.cs_logger.info(f'Делаем бридж {bridge_value} ETH')
             if stgs.work_mode_bridge == 2:
+                remains = helper.get_random_value(stgs.exc_remains[0], stgs.exc_remains[1],
+                                                  stgs.rem_digs)
                 estimate_gas = 210000
-                bridge_value = net_eth.web3.from_wei(balance_start_eth - (estimate_gas * gas_price) - tax, 'ether')
+                bridge_value = (net_eth.web3.from_wei(balance_start_eth - (estimate_gas * gas_price) - tax, 'ether') -
+                                decimal.Decimal(remains))
                 bridge_value_wei = net_eth.web3.to_wei(bridge_value, 'ether')
                 txn = build_txn(wallet, bridge_value_wei, tax, gas_price)
                 logger.cs_logger.info(f'Делаем бридж {bridge_value} ETH')
@@ -121,15 +121,15 @@ def bridge(wallet):
                     log.balance_to_end = net_zks.web3.from_wei(balance_end_zks_new, 'ether')
                     log.rewrite_log(log_file)
 
-        if 'Ошибка: ' not in txn_hash and flag is True:
+        if txn_status is True and flag is True:
             result = True
+            wallet.txn_num += 1
             logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
         for log in logs:
-            wallet.txn_num += 1
             log.balance_from_end = net_eth.web3.from_wei(bridger.check_balance(net_eth, log.address), 'ether')
             balance_old = net_zks.web3.to_wei(log.balance_to_st, 'ether')
-            log.balance_to_end = net_zks.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_zks, 25 * 0),
-                                                      'ether')
+            log.balance_to_end = net_zks.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_zks, 25 * 60),
+                                                       'ether')
             log.rewrite_log(log_file)
         return bridge_value, result
     except Exception as ex:

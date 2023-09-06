@@ -128,7 +128,6 @@ def bridge(wallet, fee, net_from, net_to):
             wallet.txn_num += 1
             logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
         for log in logs:
-            #wallet.txn_num += 1
             log.balance_from_end = net_from.web3.from_wei(bridger.check_balance(net_from, log.address), 'ether')
             balance_old = net_to.web3.to_wei(log.balance_to_st, 'ether')
             log.balance_to_end = net_to.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_to, 30*60), 'ether')

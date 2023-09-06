@@ -69,14 +69,14 @@ def main():
             if stgs.switch_bm1 == 1:
                 fee = net_from.web3.to_wei(helper.get_fee(net_from, net_to), 'ether')
 
-                # Выводим средства с биржи на кошелек
-                if stgs.exc_withdraw == 1:
-                    okxOp.withdraw(wallet, net_from)
-
                 logger.cs_logger.info(f'***   Модуль бриджа bm1   ***')
                 if connection2 is True:
 
                     if bridge_mod == 1:
+
+                        if stgs.exc_withdraw == 1:
+                            okxOp.withdraw(wallet, net_from)
+
                         bridge_vl, result = orbiterBridge.bridge(wallet, fee, net_from, net_to)
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
@@ -85,6 +85,9 @@ def main():
                                              script_time, nonce)
 
                     if bridge_mod == 2:
+
+                        if stgs.exc_withdraw == 1:
+                            okxOp.withdraw(wallet, nb.ethereum_network)
                         bridge_vl, result = syncBridge.bridge(wallet)
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
@@ -153,7 +156,7 @@ def main():
                         okxOp.deposit(wallet, net_from)
                         logger.rewrite_overall(wallet, bridge_value, total_swap, balance_end, nonce)
                     else:
-                        logger.rewrite_overall(wallet, bridge_value, total_swap, balance_end, nonce)
+                        logger.cs_logger.info(f'Бридж не удался')
 
             op += 1
             helper.delay_sleep(stgs.wallet_delay[0], stgs.wallet_delay[1])
