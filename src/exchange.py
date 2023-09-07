@@ -38,7 +38,8 @@ def withdraw_on_chain(wallet, amount_inp, info):
     amount = amount_inp - float(fee)
     logger.cs_logger.info(f'Выводим {amount} ETH в сеть {chain}')
     if float(min_wd) > amount:
-        logger.cs_logger.info(f'Выводимая сумма ({amount}) меньше минимально допустимой: {min_wd}')
+        #logger.cs_logger.info(f'Выводимая сумма ({amount}) меньше минимально допустимой: {min_wd}')
+        return f'Выводимая сумма ({amount}) меньше минимально допустимой: {min_wd}', '420'
     else:
         if settings.test_mode == 0:
             response = funding_api.set_withdrawal('ETH', str(amount), '4', address, fee, chain)

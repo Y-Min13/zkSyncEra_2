@@ -46,7 +46,7 @@ def withdraw(wallet, net):
 
     chain_info, res = exc.get_chain_info(net)
     if int(res) > 0:
-        return f'Ошибка при выводе средств {res}', chain_info
+        return f'Ошибка при выводе средств {chain_info}', res
 
     if settings.exc_mode == 1:
         wd_value = float(exc_balance) * helper.get_random_value(settings.exc_percent[0], settings.exc_percent[1], 2)
@@ -55,12 +55,13 @@ def withdraw(wallet, net):
         wd_value = float(exc_balance)
     wd_result, res = exc.withdraw_on_chain(wallet, wd_value, chain_info)
     if int(res) > 0:
-        return f'Ошибка при выводе средств {res}', wd_result
+        return f'Ошибка при выводе средств {wd_result}', res
 
     logger.cs_logger.info(f'Ожидаем поступление средств на кошелек')
     balance_old = helper.check_balance_change(wallet.address, balance_st, net, 60*30)
     if balance_old == balance_st:
-        return f'Период ожидания поступления средств истек', ''
+        return f'Период ожидания поступления средств истек', '99'
+    return wd_result, res
 
 
 def deposit(wallet, net):
