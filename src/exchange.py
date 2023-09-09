@@ -77,23 +77,33 @@ def get_balance_sub(sub):
 
 def check_deposit(subs):
     balances = list()
+    main_acc = False
     last_sub = ''
+    balance_ms_old, code = get_balance_master()
     for sub in subs:
         balance_old = '0'
+        #balance_old = get_balance_sub(sub)
         balances.append([sub, balance_old])
         time.sleep(0.5)
     flag = True
     while flag is True:
+        balance_ms_new, code = get_balance_master()
+        if balance_ms_old != balance_ms_new:
+            flag = False
+            main_acc = True
+            logger.cs_logger.info('Средства поступили на аккаунт')
+            break
         for bal in balances:
             last_sub = bal[0]
             new_bal = get_balance_sub(bal[0])
             time.sleep(1)
             if new_bal != bal[1]:
                 flag = False
+                main_acc = False
+                logger.cs_logger.info('Средства поступили на субаккаунт')
                 break
         time.sleep(15)
-    logger.cs_logger.info('Средства поступили на субаккаунт')
-    return last_sub
+    return last_sub, main_acc
 
 
 def transfer_to_master(amount_inp, sub):
@@ -122,9 +132,12 @@ def check_transfer(old_bal):
 
 def wait_deposit():
     subs = get_sub_accounts()
-    sub = check_deposit(subs)
-    balance_sub = get_balance_sub(sub)
-    old_balance_master, code = get_balance_master()
-    transfer_to_master(balance_sub, sub)
-    new_bal = check_transfer(old_balance_master)
+    sub, main_acc = check_deposit(subs)
+    if main_acc is False:
+        balance_sub = get_balance_sub(sub)
+        old_balance_master, code = get_balance_master()
+        transfer_to_master(balance_sub, sub)
+        new_bal = check_transfer(old_balance_master)
+    else:
+        new_bal, code = get_balance_master()
     return new_bal
