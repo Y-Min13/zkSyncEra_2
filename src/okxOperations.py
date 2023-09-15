@@ -68,6 +68,7 @@ def deposit(wallet, net):
     trying = True
     tr_mult = 1
     logger.cs_logger.info('Выполняем перевод средств на биржу')
+    balance_ms_old, code = exc.get_balance_master()
     while trying is True:
         gas = random.randint(net.transfer[0], net.transfer[1])
         gp_mult = helper.get_random_value(settings.random_mult_min, settings.random_mult_max, 2)
@@ -100,7 +101,7 @@ def deposit(wallet, net):
             else:
                 trying = False
             logger.cs_logger.info(f'Hash перевода на адрес биржи: {txn_tr_hash}')
-            logger.cs_logger.info('Ожидаем поступление средств на субаккаунт')
+            logger.cs_logger.info('Ожидаем поступление средств на биржу')
 
-    exc_balance_new = exc.wait_deposit()
+    exc_balance_new = exc.wait_deposit(balance_ms_old)
     wallet.exc_bal_end = float(exc_balance_new)

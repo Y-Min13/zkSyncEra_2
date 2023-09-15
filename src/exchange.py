@@ -75,11 +75,11 @@ def get_balance_sub(sub):
         return f'Ошибка запроса (get_balance_sub): {response} '
 
 
-def check_deposit(subs):
+def check_deposit(subs, balance_ms_old):
     balances = list()
     main_acc = False
     last_sub = ''
-    balance_ms_old, code = get_balance_master()
+    #balance_ms_old, code = get_balance_master()
     for sub in subs:
         balance_old = '0'
         #balance_old = get_balance_sub(sub)
@@ -130,9 +130,9 @@ def check_transfer(old_bal):
     return new_bal
 
 
-def wait_deposit():
+def wait_deposit(balance_ms_old):
     subs = get_sub_accounts()
-    sub, main_acc = check_deposit(subs)
+    sub, main_acc = check_deposit(subs, balance_ms_old)
     if main_acc is False:
         balance_sub = get_balance_sub(sub)
         old_balance_master, code = get_balance_master()
