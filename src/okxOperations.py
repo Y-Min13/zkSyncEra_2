@@ -58,7 +58,7 @@ def withdraw(wallet, net):
         return f'Ошибка при выводе средств {wd_result}', res
 
     logger.cs_logger.info(f'Ожидаем поступление средств на кошелек')
-    balance_old = helper.check_balance_change(wallet.address, balance_st, net, 60*30)
+    balance_old = helper.check_balance_change(wallet.address, balance_st, net, 60*300)
     if balance_old == balance_st:
         return f'Период ожидания поступления средств истек', '99'
     return wd_result, res

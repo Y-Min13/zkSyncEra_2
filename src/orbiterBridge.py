@@ -138,7 +138,7 @@ def bridge(wallet, fee, net_from, net_to):
         for log in logs:
             log.balance_from_end = net_from.web3.from_wei(bridger.check_balance(net_from, log.address), 'ether')
             balance_old = net_to.web3.to_wei(log.balance_to_st, 'ether')
-            log.balance_to_end = net_to.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_to, 30*60), 'ether')
+            log.balance_to_end = net_to.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_to, 300*60), 'ether')
             log.rewrite_log(log_file)
         return bridge_value, result
 

@@ -129,7 +129,7 @@ def bridge(wallet):
         for log in logs:
             log.balance_from_end = net_eth.web3.from_wei(bridger.check_balance(net_eth, log.address), 'ether')
             balance_old = net_zks.web3.to_wei(log.balance_to_st, 'ether')
-            log.balance_to_end = net_zks.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_zks, 25 * 60),
+            log.balance_to_end = net_zks.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_zks, 300 * 60),
                                                        'ether')
             log.rewrite_log(log_file)
         return bridge_value, result
