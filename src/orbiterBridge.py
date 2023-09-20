@@ -120,26 +120,17 @@ def bridge(wallet, fee, net_from, net_to):
                         net_from.web3.from_wei(balance_from_end, 'ether'),
                         net_from.web3.from_wei(balance_to_st, 'ether')
                     )
-                    logs.append(log)
-                    log.write_log(log_file, script_time)
-                    helper.delay_sleep(stgs.min_delay, stgs.max_delay)
 
-                    balance_to_end = bridger.check_balance(net_to, address)
-                    if balance_to_end != balance_to_st:
-                        balance_from_end = bridger.check_balance(net_from, address)
-                        log.balance_from_end = net_from.web3.from_wei(balance_from_end, 'ether')
+                    log.write_log(log_file, script_time)
+                    if txn_status is True:
+                        logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
+                        result = True
+                        wallet.txn_num += 1
+                        balance_to_end = helper.check_balance_change(log.address, balance_to_st, net_to, 300*60)
                         log.balance_to_end = net_to.web3.from_wei(balance_to_end, 'ether')
                         log.rewrite_log(log_file)
+                    helper.delay_sleep(stgs.min_delay, stgs.max_delay)
 
-        if txn_status is True and flag is True:
-            result = True
-            wallet.txn_num += 1
-            logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
-        for log in logs:
-            log.balance_from_end = net_from.web3.from_wei(bridger.check_balance(net_from, log.address), 'ether')
-            balance_old = net_to.web3.to_wei(log.balance_to_st, 'ether')
-            log.balance_to_end = net_to.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_to, 300*60), 'ether')
-            log.rewrite_log(log_file)
         return bridge_value, result
 
     except Exception as ex:

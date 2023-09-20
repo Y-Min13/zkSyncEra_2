@@ -105,33 +105,23 @@ def bridge(wallet):
             if flag is True:
                 txn_hash, txn_status = txnHelper.exec_txn(wallet.key, net_eth, txn)
                 logger.cs_logger.info(f'Hash бриджа: {txn_hash}')
-                balance_end_eth = net_zks.web3.from_wei(bridger.check_balance(net_eth, address), 'ether')
-                balance_end_zks = net_zks.web3.from_wei(bridger.check_balance(net_zks, address), 'ether')
+                balance_end_eth = bridger.check_balance(net_eth, address)
+
                 log = logger.LogBridge(wallet.wallet_num, net_eth.name, net_zks.name, address, bridge_value, txn_hash,
                                        net_zks.web3.from_wei(balance_start_eth, 'ether'),
                                        net_zks.web3.from_wei(balance_start_zks, 'ether'),
-                                       balance_end_eth, balance_end_zks)
+                                       net_zks.web3.from_wei(balance_end_eth, 'ether'),
+                                       net_zks.web3.from_wei(balance_start_zks, 'ether'))
                 log.write_log(log_file, script_time)
-                logs.append(log)
+                if txn_status is True:
+                    logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
+                    result = True
+                    wallet.txn_num += 1
+                    balance_end_zks = helper.check_balance_change(log.address, balance_start_zks, net_zks, 300 * 60)
+                    log.balance_to_end = net_zks.web3.from_wei(balance_end_zks, 'ether')
+                    log.rewrite_log(log_file)
                 helper.delay_sleep(stgs.min_delay, stgs.max_delay)
 
-                balance_end_zks_new = bridger.check_balance(net_zks, address)
-                if balance_end_zks_new != balance_start_zks:
-                    balance_end_eth_new = bridger.check_balance(net_eth, address)
-                    log.balance_from_end = net_eth.web3.from_wei(balance_end_eth_new, 'ether')
-                    log.balance_to_end = net_zks.web3.from_wei(balance_end_zks_new, 'ether')
-                    log.rewrite_log(log_file)
-
-        if txn_status is True and flag is True:
-            result = True
-            wallet.txn_num += 1
-            logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
-        for log in logs:
-            log.balance_from_end = net_eth.web3.from_wei(bridger.check_balance(net_eth, log.address), 'ether')
-            balance_old = net_zks.web3.to_wei(log.balance_to_st, 'ether')
-            log.balance_to_end = net_zks.web3.from_wei(helper.check_balance_change(log.address, balance_old, net_zks, 300 * 60),
-                                                       'ether')
-            log.rewrite_log(log_file)
         return bridge_value, result
     except Exception as ex:
         logger.cs_logger.info(f'Ошибка: {ex.args}')
