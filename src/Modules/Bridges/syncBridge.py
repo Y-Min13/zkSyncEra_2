@@ -3,11 +3,11 @@ import settings as stgs
 import src.ABIs as ABIs
 from web3 import Web3
 import random
-import src.networkBridge as nB
-import src.helper as helper
-import src.bridger as bridger
+import src.Modules.Bridges.networkBridge as nB
+import src.Helpers.helper as helper
+import src.Modules.Bridges.bridger as bridger
 import src.logger as logger
-import src.txnHelper as txnHelper
+import src.Helpers.txnHelper as txnHelper
 import datetime
 
 

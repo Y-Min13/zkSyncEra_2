@@ -1,5 +1,5 @@
-from src.Modules import ModuleSM1 as SM1
-from src.Modules import ModuleSM2 as SM2
+from src.Modules.Modules import ModuleSM1 as SM1
+from src.Modules.Modules import ModuleSM2 as SM2
 
 
 # Параметры скрипта:
@@ -9,7 +9,7 @@ work_mode = 0  # Вариант работы свапов 1 или 2, 0 - ран
 gas_price_limit = 40  # Лимит цены газа в Эфире
 
 wallets = open('wallet.txt')   # Файл с приватниками
-log_file = 'Swap logs.xlsx'  # Файл с результатами свапа
+log_file = 'ZkSyncEra logs.xlsx'  # Файл с результатами свапа
 slippage = 0.020  # Проскальзывание для Mute, Spacefi, Pancake и Maverick (2%)
 
 
@@ -18,11 +18,14 @@ api_key = ''  # Ключ API основного аккаунта биржи
 secret_key = ''  # Секретный ключ
 pass_phrase = ''  # Пасс-фраза
 
-exc_withdraw = 1  # Вывод с биржи на кошельки: 0 - выкл / 1 - вкл
-exc_deposit = 1  # Депозит с кошельков на биржу: 0 - выкл / 1 - вкл
+exc_withdraw = 0  # Вывод с биржи на кошельки: 0 - выкл / 1 - вкл
+exc_deposit = 0  # Депозит с кошельков на биржу: 0 - выкл / 1 - вкл
 
 exc_mode = 2  # Режим вывода средств с биржи: 1 - часть от баланса | 2 - весь доступный баланс
 exc_percent = [0.40, 0.50]  # Процент баланса, который будем выводить с биржи
+
+exc_limit_max = 0.001  # Верхняя граница суммы вывода с биржи (в единицах эфира)
+exc_percent_step = 0.05  # Шаг, с которым уменьшаются границы процента баланса
 
 deposit_remains = [0.0003, 0.0004]  # Остаток на кошельке при переводе на адрес биржи (ETH)
 deposit_digs = 5  # Количество знаков после запятой для остатка на кошельке
@@ -48,9 +51,15 @@ optimism_rpc = 'https://1rpc.io/op'
 
 
 #       / Включение (1) | (0) Выключение модулей /
-switch_bm1 = 1  # Включить модуль бриджа (bm1)?
-switch_sm1 = 1  # Включить модуль свапа с несколькими свапалками (sm1)?
-switch_sm2 = 1  # Включить модуль свапа с одной свапалкой (sm2)?
+switch_bm1 = 0  # Включить модуль бриджа (bm1)?
+switch_sm1 = 0  # Включить модуль свапа с несколькими свапалками (sm1)?
+switch_sm2 = 0  # Включить модуль свапа с одной свапалкой (sm2)?
+switch_teva = 1  # Включючить модуль минта NFT tevaEra (teva)?
+switch_domain = 1  # Включить модуль минта домена eraName (domain)?
+
+
+#       / Параметры NFT /
+domain_max_param_length = 20  # Максимальная длина параметря для eraNameService (domain)
 
 
 #       / Порядок модулей после бриджа /
@@ -70,6 +79,8 @@ modules_max = 1  # Максимальное количество модулей 
 #       / Шанс выполнения модуля /
 sm1_chance = 100
 sm2_chance = 100
+teva_chance = 100
+domain_chance = 100
 
 #       / Параметры для выбора свапалок /
 # Выбор свапалки для модуля с разными свапалками (sm1):

@@ -14,7 +14,7 @@ def exec_txn(private_key, net, txn):
             txn_hash = 'TESTIKS'  # Для тестов
             return txn_hash, True
     except Exception as ex:
-        return f'Ошибка: {ex.args}', False
+        return f'Ошибка в (txnHelper: exec_txn): {ex.args}', False
 
 
 def check_balance_of_token(address):
@@ -67,4 +67,4 @@ def check_estimate_gas(txn, net):
         estimate_gas = net.web3.eth.estimate_gas(txn)
         return estimate_gas
     except Exception as ex:
-        return f'Ошибка: {ex.args}'
+        return f'Ошибка в (txnHelper: check_estimate_gas): {ex.args}'

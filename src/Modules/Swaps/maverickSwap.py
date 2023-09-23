@@ -1,35 +1,36 @@
-import src.networkTokens as nt
-import src.ABIs as ABIs
-import src.txnHelper as swapHelper
-import src.helper as helper
-import src.logger as logger
-import settings as stgs
-import math
-import time
 import decimal
 import datetime
+import time
+import math
+import src.networkTokens as nt
+import src.ABIs as ABIs
+import eth_abi
+import src.Helpers.txnHelper as swapHelper
+import src.Helpers.helper as helper
+import src.logger as logger
+import settings as stgs
 
 
 swap_contract_address = ''
 mode = stgs.network_mode
 if mode == 1:
-    swap_contract_address = '0xbE7D1FD1f6748bbDefC4fbaCafBb11C6Fc506d1d'
+    swap_contract_address = '0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4'
 if mode == 2:
-    swap_contract_address = '0x6eeF3310E09DF3aa819Cc2aa364D4f3Ad2E6fFe3'  # Тестовый
-contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address), abi=ABIs.SpacefiSwap_ABI)
+    swap_contract_address = ''  # Тестовый
+contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address), abi=ABIs.MaverickSwap_ABI)
+pool_address = '41c8cf74c27554a8972d3bf3d2bd4a14d8b604ab'
 
 
 def build_txn_swap_in(address, value, price):
     try:
-        slippage = stgs.slippage
         contract = contract_swap
-        nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
+        slippage = stgs.slippage
         gas_price = nt.zkSyncEra.web3.eth.gas_price
         max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
         value_wei = nt.zkSyncEra.web3.to_wei(value, 'ether')
         token_out_wei = int(float(value) * price * (10 ** 6))
         min_output = int(token_out_wei * (1 - slippage))
-
+        nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         dict_transaction = {
             'chainId': nt.zkSyncEra.web3.eth.chain_id,
             'from': address,
@@ -39,12 +40,25 @@ def build_txn_swap_in(address, value, price):
             'maxPriorityFeePerGas': max_priority,
             'nonce': nonce,
         }
-        txn_swap = contract.functions.swapExactETHForTokens(
-            min_output,
-            [nt.wETH_token_spacefi.address, nt.USDC_token.address],
-            address,
-            math.ceil(time.time()) + 1800,
+
+        deadline = math.ceil(time.time()) + 20 * 60
+        usdc_address = nt.USDC_token.address
+        weth_address = nt.wETH_token_pancake.address
+        path_str = weth_address.removeprefix('0x') + pool_address.removeprefix('0x') + usdc_address.removeprefix('0x')
+        path = bytes.fromhex(path_str)
+
+        contract_code = eth_abi.encode(
+            ['bytes', 'address',  'uint256', 'uint256', 'uint256'],
+            [path, address, deadline, value_wei, min_output]
+        )
+        txn_code_hex = 'c04b8d59' + '0000000000000000000000000000000000000000000000000000000000000020' + contract_code.hex()
+        txn_code = bytes.fromhex(txn_code_hex)
+        ref = bytes.fromhex('12210e8a')
+
+        txn_swap = contract.functions.multicall(
+            [txn_code, ref]
         ).build_transaction(dict_transaction)
+
         return txn_swap
     except Exception as ex:
         logger.cs_logger.info(f'{ex.args}')
@@ -58,8 +72,9 @@ def build_txn_swap_out(address, value, price):
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
         max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
-        ether_out = value / price / 10**6
+        ether_out = value / price / 10 ** 6
         min_output = int(nt.zkSyncEra.web3.to_wei(ether_out * (1 - slippage), 'ether'))
+
         dict_transaction = {
             'chainId': nt.zkSyncEra.web3.eth.chain_id,
             'from': address,
@@ -68,13 +83,27 @@ def build_txn_swap_out(address, value, price):
             'maxPriorityFeePerGas': max_priority,
             'nonce': nonce,
         }
-        txn_swap = contract.functions.swapExactTokensForETH(
-            value,
-            min_output,
-            [nt.USDC_token.address, nt.wETH_token_spacefi.address],
-            address,
-            math.ceil(time.time()) + 1800,
-            ).build_transaction(dict_transaction)
+
+        zero_address = '0x0000000000000000000000000000000000000000'
+        deadline = math.ceil(time.time()) + 20 * 60
+        usdc_address = nt.USDC_token.address
+        weth_address = nt.wETH_token_pancake.address
+        path_str = usdc_address.removeprefix('0x') + pool_address.removeprefix('0x') + weth_address.removeprefix('0x')
+        path = bytes.fromhex(path_str)
+
+        contract_code = eth_abi.encode(
+            ['bytes', 'address', 'uint256', 'uint256', 'uint256'],
+            [path, zero_address, deadline, value, min_output]
+        )
+        txn_code_hex = 'c04b8d59' + '0000000000000000000000000000000000000000000000000000000000000020' + contract_code.hex()
+        txn_code = bytes.fromhex(txn_code_hex)
+
+        address_code = eth_abi.encode(['uint256', 'address'], [0, address])
+        ref = bytes.fromhex('49404b7c'+address_code.hex())
+
+        txn_swap = contract.functions.multicall(
+            [txn_code, ref]
+        ).build_transaction(dict_transaction)
         return txn_swap
     except Exception as ex:
         return f'Ошибка: {ex.args}'
@@ -85,7 +114,7 @@ def swap_ETH_to_USDC(wallet, swap_value, price, operation, txn_num):
         key = wallet.key
         address = wallet.address
         script_time = datetime.datetime.now().strftime("%d-%m-%y %H:%M")
-        logger.cs_logger.info(f'Свапаем {swap_value} ETH через SpacefiSwap')
+        logger.cs_logger.info(f'Свапаем {swap_value} ETH через MaverickSwap')
         balance_start_eth = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(address), 'ether')
         balance_start_token = nt.contract_USDC.functions.balanceOf(address).call() / 10 ** 6
 
@@ -102,8 +131,8 @@ def swap_ETH_to_USDC(wallet, swap_value, price, operation, txn_num):
 
             balance_end_eth = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(address), 'ether')
             balance_end_token = nt.contract_USDC.functions.balanceOf(address).call() / 10 ** 6
-            log = logger.LogSwap(wallet.wallet_num, operation, txn_num + 1, address, 'SpacefiSwap', swap_value, txn_hash, balance_start_eth,
-                                 balance_end_eth, balance_start_token, balance_end_token)
+            log = logger.LogSwap(wallet.wallet_num, operation, txn_num + 1, address, 'MaverickSwap', swap_value, txn_hash,
+                                 balance_start_eth, balance_end_eth, balance_start_token, balance_end_token)
             log.write_log(stgs.log_file, 1, script_time)
             return 1
     except Exception as ex:
@@ -116,7 +145,7 @@ def swap_USDC_to_ETH(wallet, token_value, price, operation, txn_num):
         address = wallet.address
         script_time = datetime.datetime.now().strftime("%d-%m-%y %H:%M")
         if token_value != 0:
-            logger.cs_logger.info(f'Свапаем {token_value / 10**6} USDC через SpacefiSwap')
+            logger.cs_logger.info(f'Свапаем {token_value / 10**6} USDC через MaverickSwap')
             balance_start_eth = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(address), 'ether')
             balance_start_token = nt.contract_USDC.functions.balanceOf(address).call() / 10 ** 6
 
@@ -134,7 +163,7 @@ def swap_USDC_to_ETH(wallet, token_value, price, operation, txn_num):
 
                 balance_end_eth = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(address), 'ether')
                 balance_end_token = nt.contract_USDC.functions.balanceOf(address).call() / 10 ** 6
-                log = logger.LogSwap(wallet.wallet_num, operation, txn_num + 1, address, 'SpacefiSwap', token_value / 10 ** 6, txn_hash,
+                log = logger.LogSwap(wallet.wallet_num, operation, txn_num + 1, address, 'MaverickSwap', token_value / 10 ** 6, txn_hash,
                                      balance_start_eth, balance_end_eth, balance_start_token, balance_end_token)
                 log.write_log(stgs.log_file, 2, script_time)
                 return 1
@@ -160,7 +189,7 @@ def swapping(wallet, swap_balance, price, txn_count, work_mode, operation, txn_n
                 )
                 swap_balance -= swap_value
 
-            logger.cs_logger.info(f'Транзакция {i + 1} из {txn_count}')
+            logger.cs_logger.info(f'Транзакция {i+1} из {txn_count}')
             st = swap_ETH_to_USDC(wallet, swap_value, price, operation, txns)
             if st != 1:
                 break
@@ -186,6 +215,7 @@ def swapping(wallet, swap_balance, price, txn_count, work_mode, operation, txn_n
                 txns += 1
 
             if i % 2 != 0:
+
                 logger.cs_logger.info(f'Транзакция {i + 1} из {txn_count}')
                 token_value = nt.contract_USDC.functions.balanceOf(wallet.address).call()
                 st = swap_USDC_to_ETH(wallet, token_value, price, operation, txns)

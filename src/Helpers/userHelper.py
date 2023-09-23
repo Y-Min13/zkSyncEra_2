@@ -1,5 +1,5 @@
 import settings as stgs
-import src.networkBridge as nB
+import src.Modules.Bridges.networkBridge as nB
 import src.logger as logger
 
 
@@ -36,6 +36,16 @@ def get_info(wallets):
             logger.cs_logger.info(f'Бриджим весь доступный баланс')
     else:
         logger.cs_logger.info(f'Модуль бриджа выключен')
+
+    if stgs.switch_teva == 1:
+        logger.cs_logger.info(f'TevaEra NFT Mint включен. Шанс: {stgs.teva_chance}')
+    else:
+        logger.cs_logger.info(f'TevaEra NFT Mint отключен!')
+
+    if stgs.switch_domain == 1:
+        logger.cs_logger.info(f'EraNameService NFT Mint включен. Шанс: {stgs.domain_chance}')
+    else:
+        logger.cs_logger.info(f'EraNameService NFT Mint отключен!')
 
     if stgs.switch_sm1 == 1:
         logger.cs_logger.info(f'Модуль sm1 активирован. Шанс: {stgs.sm1_chance}')

@@ -2,10 +2,10 @@ import settings as stgs
 import datetime
 import decimal
 import src.logger as logger
-import src.bridger as bridger
-import src.helper as helper
-import src.txnHelper as txnHelper
-import src.okxOperations as okxOp
+import src.Modules.Bridges.bridger as bridger
+import src.Helpers.helper as helper
+import src.Helpers.txnHelper as txnHelper
+import src.Exchanges.okxOperations as okxOp
 
 
 bridge_contract_address = ''
@@ -126,7 +126,7 @@ def bridge(wallet, fee, net_from, net_to):
                         logger.cs_logger.info(f'Ждем окончания бриджа в сети назначения...')
                         result = True
                         wallet.txn_num += 1
-                        balance_to_end = helper.check_balance_change(log.address, balance_to_st, net_to, 300*60)
+                        balance_to_end = helper.check_balance_change(log.address, balance_to_st, net_to, 300 * 60)
                         log.balance_to_end = net_to.web3.from_wei(balance_to_end, 'ether')
                         log.rewrite_log(log_file)
                     helper.delay_sleep(stgs.min_delay, stgs.max_delay)

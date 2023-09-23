@@ -1,8 +1,8 @@
-import src.exchange as exc
+import src.Exchanges.exchange as exc
 import src.logger as logger
 import settings
-import src.helper as helper
-import src.txnHelper as txnHelper
+import src.Helpers.helper as helper
+import src.Helpers.txnHelper as txnHelper
 import src.ABIs as ABIs
 import random
 
@@ -48,17 +48,26 @@ def withdraw(wallet, net):
     if int(res) > 0:
         return f'Ошибка при выводе средств {chain_info}', res
 
+    percents = settings.exc_percent
     if settings.exc_mode == 1:
-        wd_value = float(exc_balance) * helper.get_random_value(settings.exc_percent[0], settings.exc_percent[1], 2)
-        wd_value = helper.trunc_value(wd_value, settings.exc_digs_min, settings.exc_digs_max)
+        while True:
+            wd_value = float(exc_balance) * helper.get_random_value(percents[0], percents[1], 2)
+            wd_value = helper.trunc_value(wd_value, settings.exc_digs_min, settings.exc_digs_max)
+            if wd_value > settings.exc_limit_max:
+                percents[0] -= settings.exc_percent_step
+                percents[1] -= settings.exc_percent_step
+            else:
+                break
+
     if settings.exc_mode == 2:
         wd_value = float(exc_balance)
+
     wd_result, res = exc.withdraw_on_chain(wallet, wd_value, chain_info)
     if int(res) > 0:
         return f'Ошибка при выводе средств {wd_result}', res
 
     logger.cs_logger.info(f'Ожидаем поступление средств на кошелек')
-    balance_old = helper.check_balance_change(wallet.address, balance_st, net, 60*300)
+    balance_old = helper.check_balance_change(wallet.address, balance_st, net, 60 * 300)
     if balance_old == balance_st:
         return f'Период ожидания поступления средств истек', '99'
     return wd_result, res

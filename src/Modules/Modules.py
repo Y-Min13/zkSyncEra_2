@@ -24,3 +24,14 @@ class ModuleSM1(object):
         self.txn_max2 = txn_max2
         self.txn_min3 = txn_min3
         self.txn_max3 = txn_max3
+
+
+class TevaEraMint(object):
+    mod = 'teva'
+    name = 'teva'
+
+
+class DomainMint(object):
+    mod = 'domain'
+    name = 'domain'
+

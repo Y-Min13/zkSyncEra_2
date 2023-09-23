@@ -1,17 +1,20 @@
+import settings
 import src.networkTokens as nt
-import src.networkBridge as nb
+import src.Modules.Bridges.networkBridge as nb
 import src.logger as logger
 import settings as stgs
-import src.swapper as swapper
+import src.Modules.Swaps.swapper as swapper
 import random
 import src.gasPriceChecker as gpc
 from threading import Thread
-import src.helper as helper
-import src.orbiterBridge as orbiterBridge
-import datetime
-import src.syncBridge as syncBridge
-import src.userHelper as userHelper
-import src.okxOperations as okxOp
+import src.Helpers.helper as helper
+import src.Modules.Bridges.orbiterBridge as orbiterBridge
+import src.Modules.Bridges.syncBridge as syncBridge
+import src.Helpers.userHelper as userHelper
+import src.Exchanges.okxOperations as okxOp
+import src.Modules.Modules as Mods
+import src.Modules.nftMints.tevaEraMint as tevaEraMint
+import src.Modules.nftMints.eraNameMint as eraNameMint
 
 
 # Параметры скрипта:
@@ -51,10 +54,10 @@ def main():
                 result = False
 
             wallet_num = wallet.wallet_num
-            script_time = datetime.datetime.now().strftime("%d-%m-%y %H:%M")
+            script_time = helper.get_curr_time()
             total_swap = 0
             bridge_value = 0
-            bridge_vl = 0
+            nft_value = 0
 
             if stgs.bridge_module == 0:
                 bridge_mod = random.randint(1, 2)
@@ -62,7 +65,8 @@ def main():
                 bridge_mod = stgs.bridge_module
 
             logger.cs_logger.info(f'')
-            logger.cs_logger.info(f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
+            logger.cs_logger.info(
+                f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
             balance_st = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
 
             # Модуль с бриджем (bm)
@@ -84,8 +88,8 @@ def main():
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
-                        logger.write_overall(wallet, wallet_num, bridge_value, total_swap, balance_st, balance_end,
-                                             script_time, nonce)
+                        logger.write_overall(wallet, wallet_num, bridge_value, total_swap, nft_value, balance_st,
+                                             balance_end, script_time, nonce)
 
                     if bridge_mod == 2:
 
@@ -99,8 +103,8 @@ def main():
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
-                        logger.write_overall(wallet, wallet_num, bridge_value, total_swap, balance_st, balance_end,
-                                             script_time, nonce)
+                        logger.write_overall(wallet, wallet_num, bridge_value, total_swap, nft_value, balance_st,
+                                             balance_end, script_time, nonce)
                 else:
                     logger.cs_logger.info(f'Соединение с rpc исходящей сети не удалось')
 
@@ -108,15 +112,47 @@ def main():
                 if stgs.switch_bm1 == 0:
                     balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                     nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
-                    logger.write_overall(wallet, wallet_num, bridge_value, total_swap, balance_st, balance_end,
-                                         script_time, nonce)
+                    logger.write_overall(wallet, wallet_num, bridge_value, total_swap, nft_value, balance_st,
+                                         balance_end, script_time, nonce)
 
                 modules = stgs.modules
                 if stgs.modules_shuffle == 1:
                     random.shuffle(modules)
+
                 m_count = random.randint(stgs.modules_min, stgs.modules_max)
+                modules = modules[:m_count]
+
+                if stgs.switch_teva == 1:
+                    modules.append(Mods.TevaEraMint)
+                    random.shuffle(modules)
+                    m_count += 1
+
+                if stgs.switch_domain == 1:
+                    modules.append(Mods.DomainMint)
+                    random.shuffle(modules)
+                    m_count += 1
+
                 logger.cs_logger.info(f'Количество модулей: {m_count}')
-                for module in modules[:m_count]:
+                for module in modules:
+
+                    # Модуль Mint Домена
+                    if module.mod == 'domain':
+                        chance = random.randint(1, 100)
+                        if chance <= stgs.domain_chance:
+                            gpc.check_limit()
+                            logger.cs_logger.info(f'***   Модуль Mint Домена   ***')
+                            nft_value += eraNameMint.era_name_mint(wallet, nt.zkSyncEra)
+                            #operation += 1
+
+                    # Модуль TevaEra NFT (citizenId, guardianId)
+                    if module.mod == 'teva':
+                        chance = random.randint(1, 100)
+                        if chance <= stgs.teva_chance:
+                            gpc.check_limit()
+                            logger.cs_logger.info(f'***   Модуль TevaEra NFT Mint   ***')
+                            nft_value += tevaEraMint.teva_era_mint(wallet, nt.zkSyncEra)
+                            #operation += 1
+
                     # Модуль с несколькими свапалками (sm1)
                     if module.mod == 'sm1':
                         if stgs.switch_sm1 == 1:
@@ -142,9 +178,10 @@ def main():
                                 total_swap += swapper.swap_module(wallet, module, swap_mode_sm2, swap_mode_sm2,
                                                                   swap_mode_sm2, swap_mode_sm2)
                                 operation += 1
+
                     balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                     nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
-                    logger.rewrite_overall(wallet, bridge_value, total_swap, balance_end, nonce)
+                    logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, balance_end, nonce)
                     wallet.operation = operation
 
                 if stgs.exc_deposit == 1:
@@ -161,7 +198,7 @@ def main():
 
                         # Трансфер средств на адрес биржи
                         okxOp.deposit(wallet, net_from)
-                        logger.rewrite_overall(wallet, bridge_value, total_swap, balance_end, nonce)
+                        logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, balance_end, nonce)
                     else:
                         logger.cs_logger.info(f'Бридж не удался')
 

@@ -7,6 +7,7 @@ class Network(object):
     def __init__(self, net_name, rpc,):
         self.name = net_name
         self.web3 = Web3(Web3.HTTPProvider(rpc))
+        self.chain_id = self.web3.eth.chain_id
 
 
 class Token(object):

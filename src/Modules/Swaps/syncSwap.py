@@ -6,8 +6,8 @@ import math
 import src.networkTokens as nt
 import src.ABIs as ABIs
 import eth_abi
-import src.txnHelper as swapHelper
-import src.helper as helper
+import src.Helpers.txnHelper as swapHelper
+import src.Helpers.helper as helper
 import src.logger as logger
 import settings as stgs
 

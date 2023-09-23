@@ -1,6 +1,7 @@
 import random
 import math
 import time
+import datetime
 import src.networkTokens as nt
 import requests
 import settings as stgs
@@ -8,6 +9,24 @@ import src.gasPriceChecker as gPC
 import src.logger as logger
 from web3 import Web3
 from src.wallet import Wallet
+
+
+def get_random_number(number_min, number_max):
+    number = random.randint(number_min, number_max)
+    return number
+
+
+def create_param(param_length, symbols):
+    param = ''
+    for i in range(param_length):
+        letter = random.choice(symbols)
+        param += letter
+    return param
+
+
+def get_curr_time():
+    script_time = datetime.datetime.now().strftime("%d-%m-%y %H:%M")
+    return script_time
 
 
 def get_random_value(min_value, max_value, digs=5):
