@@ -18,7 +18,7 @@ def mint_nft(wallet, nft, net):
         else:
             logger.cs_logger.info(f'Минтим NFT: {nft.nft_name}')
             txn['gas'] = int(est_gas)
-            txn_hash, txn_status = txnHelper.exec_txn(wallet.key, txn, net)
+            txn_hash, txn_status = txnHelper.exec_txn(wallet.key, net, txn)
             logger.cs_logger.info(f'Hash mint: {txn_hash}')
 
             if txn_status is True:
