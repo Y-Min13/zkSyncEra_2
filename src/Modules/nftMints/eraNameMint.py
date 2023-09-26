@@ -35,7 +35,7 @@ class DomainMint(object):
                 'to': self.nft_address,
                 'value': value,
                 'gas': 3_000_000,
-                'maxFeePerGas': net.web3.eth.gas_price,
+                'gasPrice': net.web3.eth.gas_price,
                 'data': data,
             }
 
@@ -68,7 +68,7 @@ class PrimaryAddressMint(object):
                 'to': self.nft_address,
                 'value': 0,
                 'gas': 3_000_000,
-                'maxFeePerGas': net.web3.eth.gas_price,
+                'gasPrice': net.web3.eth.gas_price,
                 'data': data,
             }
 
