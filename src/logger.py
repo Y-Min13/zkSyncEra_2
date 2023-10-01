@@ -21,13 +21,14 @@ def create_xml(log_file):
         worksheet.cell(row=1, column=4).value = "Сумма бриджа"
         worksheet.cell(row=1, column=5).value = "Сумма свапов"
         worksheet.cell(row=1, column=6).value = "Сумма Mint"
-        worksheet.cell(row=1, column=7).value = "Нач бал zkSyncEra"
-        worksheet.cell(row=1, column=8).value = "Кон бал zkSyncEra"
-        worksheet.cell(row=1, column=9).value = "Кол-во транз в скрипте"
-        worksheet.cell(row=1, column=10).value = "Кол-во транз кошелька"
-        worksheet.cell(row=1, column=11).value = "Нач бал биржи"
-        worksheet.cell(row=1, column=12).value = "Кон бал биржи"
-        worksheet.cell(row=1, column=13).value = "Время"
+        worksheet.cell(row=1, column=7).value = "Сумма Liquidity"
+        worksheet.cell(row=1, column=8).value = "Нач бал zkSyncEra"
+        worksheet.cell(row=1, column=9).value = "Кон бал zkSyncEra"
+        worksheet.cell(row=1, column=10).value = "Кол-во транз в скрипте"
+        worksheet.cell(row=1, column=11).value = "Кол-во транз кошелька"
+        worksheet.cell(row=1, column=12).value = "Нач бал биржи"
+        worksheet.cell(row=1, column=13).value = "Кон бал биржи"
+        worksheet.cell(row=1, column=14).value = "Время"
         workbook.save(log_file)
 
         workbook.create_sheet('Swap operations')
@@ -90,13 +91,70 @@ def create_xml(log_file):
         worksheet.cell(row=1, column=3).value = "Адрес"
         worksheet.cell(row=1, column=4).value = "NFT"
         worksheet.cell(row=1, column=5).value = f"Hash mint"
-        worksheet.cell(row=1, column=6).value = f"Начальный баланс"
-        worksheet.cell(row=1, column=7).value = f"Конечный баланс"
+        worksheet.cell(row=1, column=6).value = f"Нач. баланс"
+        worksheet.cell(row=1, column=7).value = f"Кон. баланс"
         worksheet.cell(row=1, column=8).value = "Сумма mint"
         worksheet.cell(row=1, column=9).value = f"Параметр"
         worksheet.cell(row=1, column=10).value = "Время"
         workbook.save(log_file)
         workbook.close()
+
+        worksheet = workbook.create_sheet('Liquidity transactions')
+        worksheet.cell(row=1, column=1).value = "№ кошелька"
+        worksheet.cell(row=1, column=2).value = "№ txn"
+        worksheet.cell(row=1, column=3).value = "Адрес"
+        worksheet.cell(row=1, column=4).value = f"Hash"
+        worksheet.cell(row=1, column=5).value = f"Нач. баланс"
+        worksheet.cell(row=1, column=6).value = f"Кон. баланс"
+        worksheet.cell(row=1, column=7).value = "Сумма ETH"
+        worksheet.cell(row=1, column=8).value = "Сумма LP"
+        worksheet.cell(row=1, column=9).value = "Время"
+        workbook.save(log_file)
+        workbook.close()
+
+
+class LogLiquidity(object):
+    def __init__(self, wallet, txn_hash, value_eth, value_lp, balance_st, balance_end, script_time):
+        self.wallet_num = wallet.wallet_num
+        self.address = wallet.address
+        self.operation = wallet.txn_num
+        self.txn_hash = txn_hash
+        self.balance_st = balance_st
+        self.balance_end = balance_end
+        self.value_eth = value_eth
+        self.value_lp = value_lp
+        self.script_time = script_time
+
+    def write_log(self):
+        while True:
+            try:
+                workbook = openpyxl.load_workbook(stgs.log_file)
+                worksheet = workbook['Liquidity transactions']
+                last_row = worksheet.max_row
+                worksheet.cell(row=last_row + 1, column=1).value = self.wallet_num
+                worksheet.cell(row=last_row + 1, column=2).value = self.operation
+                worksheet.cell(row=last_row + 1, column=3).value = self.address
+                worksheet.cell(row=last_row + 1, column=4).value = self.txn_hash
+
+                worksheet.cell(row=last_row + 1, column=5).value = self.balance_st
+                worksheet.cell(row=last_row + 1, column=5).number_format = '0.00000'
+
+                worksheet.cell(row=last_row + 1, column=6).value = self.balance_end
+                worksheet.cell(row=last_row + 1, column=6).number_format = '0.00000'
+
+                worksheet.cell(row=last_row + 1, column=7).value = self.value_eth
+                worksheet.cell(row=last_row + 1, column=7).number_format = '0.00000'
+
+                worksheet.cell(row=last_row + 1, column=8).value = self.value_lp
+                worksheet.cell(row=last_row + 1, column=8).number_format = '0.00000'
+                worksheet.cell(row=last_row + 1, column=9).value = self.script_time
+
+                workbook.save(stgs.log_file)
+                workbook.close()
+                break
+            except PermissionError:
+                cs_logger.info(f'Не получается сохранить файл! Закройте Excel. Нажмите Enter для продолжения...')
+                input("")
 
 
 class LogNFT(object):
@@ -210,7 +268,8 @@ def get_last_row_overall(log_file):
     return last_row
 
 
-def write_overall(wallet, wallet_num, bridge_value, swap_value, nft_value, balance_st, balance_end, script_time, nonce):
+def write_overall(wallet, wallet_num, bridge_value, swap_value, nft_value, liq_value,
+                  balance_st, balance_end, script_time, nonce):
     while True:
         try:
             workbook = openpyxl.load_workbook(stgs.log_file)
@@ -229,21 +288,24 @@ def write_overall(wallet, wallet_num, bridge_value, swap_value, nft_value, balan
             worksheet.cell(row=last_row + wallet.index, column=6).value = nft_value
             worksheet.cell(row=last_row + wallet.index, column=6).number_format = '0.00000'
 
-            worksheet.cell(row=last_row + wallet.index, column=7).value = balance_st
+            worksheet.cell(row=last_row + wallet.index, column=7).value = liq_value
             worksheet.cell(row=last_row + wallet.index, column=7).number_format = '0.00000'
 
-            worksheet.cell(row=last_row + wallet.index, column=8).value = balance_end
+            worksheet.cell(row=last_row + wallet.index, column=8).value = balance_st
             worksheet.cell(row=last_row + wallet.index, column=8).number_format = '0.00000'
 
-            worksheet.cell(row=last_row + wallet.index, column=9).value = wallet.txn_num
-            worksheet.cell(row=last_row + wallet.index, column=10).value = nonce
+            worksheet.cell(row=last_row + wallet.index, column=9).value = balance_end
+            worksheet.cell(row=last_row + wallet.index, column=9).number_format = '0.00000'
 
-            worksheet.cell(row=last_row + wallet.index, column=11).value = wallet.exc_bal_st
-            worksheet.cell(row=last_row + wallet.index, column=11).number_format = '0.00000'
+            worksheet.cell(row=last_row + wallet.index, column=10).value = wallet.txn_num
+            worksheet.cell(row=last_row + wallet.index, column=11).value = nonce
 
-            worksheet.cell(row=last_row + wallet.index, column=12).value = wallet.exc_bal_end
+            worksheet.cell(row=last_row + wallet.index, column=12).value = wallet.exc_bal_st
             worksheet.cell(row=last_row + wallet.index, column=12).number_format = '0.00000'
-            worksheet.cell(row=last_row + wallet.index, column=13).value = script_time
+
+            worksheet.cell(row=last_row + wallet.index, column=13).value = wallet.exc_bal_end
+            worksheet.cell(row=last_row + wallet.index, column=13).number_format = '0.00000'
+            worksheet.cell(row=last_row + wallet.index, column=14).value = script_time
             workbook.save(stgs.log_file)
             workbook.close()
             break
@@ -252,7 +314,7 @@ def write_overall(wallet, wallet_num, bridge_value, swap_value, nft_value, balan
             input("")
 
 
-def rewrite_overall(wallet, bridge_value, swap_value, nft_value, balance_end, nonce):
+def rewrite_overall(wallet, bridge_value, swap_value, nft_value, liq_value, balance_end, nonce):
     while True:
         try:
             workbook = openpyxl.load_workbook(stgs.log_file)
@@ -261,11 +323,12 @@ def rewrite_overall(wallet, bridge_value, swap_value, nft_value, balance_end, no
             worksheet.cell(row=last_row + wallet.index, column=4).value = bridge_value
             worksheet.cell(row=last_row + wallet.index, column=5).value = swap_value
             worksheet.cell(row=last_row + wallet.index, column=6).value = nft_value
-            worksheet.cell(row=last_row + wallet.index, column=8).value = balance_end
-            worksheet.cell(row=last_row + wallet.index, column=9).value = wallet.txn_num
-            worksheet.cell(row=last_row + wallet.index, column=10).value = nonce
-            worksheet.cell(row=last_row + wallet.index, column=11).value = wallet.exc_bal_st
-            worksheet.cell(row=last_row + wallet.index, column=12).value = wallet.exc_bal_end
+            worksheet.cell(row=last_row + wallet.index, column=7).value = liq_value
+            worksheet.cell(row=last_row + wallet.index, column=9).value = balance_end
+            worksheet.cell(row=last_row + wallet.index, column=10).value = wallet.txn_num
+            worksheet.cell(row=last_row + wallet.index, column=11).value = nonce
+            worksheet.cell(row=last_row + wallet.index, column=12).value = wallet.exc_bal_st
+            worksheet.cell(row=last_row + wallet.index, column=13).value = wallet.exc_bal_end
             workbook.save(stgs.log_file)
             workbook.close()
             break

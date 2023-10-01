@@ -35,3 +35,7 @@ class DomainMint(object):
     mod = 'domain'
     name = 'domain'
 
+
+class Liquidity(object):
+    mod = 'liq'
+    name = 'liquidity'

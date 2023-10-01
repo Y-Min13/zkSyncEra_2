@@ -37,6 +37,11 @@ def get_info(wallets):
     else:
         logger.cs_logger.info(f'Модуль бриджа выключен')
 
+    if stgs.switch_liq == 1:
+        logger.cs_logger.info(f'Модуль ликвидности включен. Шанс: {stgs.liq_chance}')
+    else:
+        logger.cs_logger.info(f'Модуль ликвидности отключен!')
+
     if stgs.switch_teva == 1:
         logger.cs_logger.info(f'TevaEra NFT Mint включен. Шанс: {stgs.teva_chance}')
     else:
