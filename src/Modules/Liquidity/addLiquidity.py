@@ -205,14 +205,45 @@ class Liquidity(object):
             liq_value = 0
             balance_lp = self.get_balance_lp(wallet.address, net)
 
-            if balance_lp == 0:
-                percent = decimal.Decimal(helper.get_random_value(settings.liq_balance_perc[0], settings.liq_balance_perc[1]))
-                balance = net.web3.from_wei(net.web3.eth.get_balance(wallet.address), 'ether')
-                value = helper.trunc_value(balance * percent, settings.liq_balance_digs[0], settings.liq_balance_digs[1])
-                value_wei = net.web3.to_wei(value, 'ether')
-                status, liq_value = self.liquidity_add(wallet, net, value_wei)
-            else:
-                self.liquidity_burn(wallet, net, balance_lp)
+            if settings.liq_add == 1 and settings.liq_burn == 1:
+                logger.cs_logger.info(f'***   Модуль Ликвидности   ***')
+                if wallet.liq == 1:
+                    if balance_lp > 0:
+                        self.liquidity_burn(wallet, net, balance_lp)
+                    else:
+                        logger.cs_logger.info(f'Баланс LP токена равен 0.')
+
+                if wallet.liq == 0:
+                    percent = decimal.Decimal(
+                        helper.get_random_value(settings.liq_balance_perc[0], settings.liq_balance_perc[1]))
+                    balance = net.web3.from_wei(net.web3.eth.get_balance(wallet.address), 'ether')
+                    value = helper.trunc_value(balance * percent, settings.liq_balance_digs[0],
+                                               settings.liq_balance_digs[1])
+                    value_wei = net.web3.to_wei(value, 'ether')
+                    status, liq_value = self.liquidity_add(wallet, net, value_wei)
+                    wallet.liq += 1
+
+            if settings.liq_add == 1 and settings.liq_burn == 0:
+                if wallet.liq == 0:
+                    logger.cs_logger.info(f'***   Модуль Ликвидности   ***')
+                    percent = decimal.Decimal(
+                        helper.get_random_value(settings.liq_balance_perc[0], settings.liq_balance_perc[1]))
+                    balance = net.web3.from_wei(net.web3.eth.get_balance(wallet.address), 'ether')
+                    value = helper.trunc_value(balance * percent, settings.liq_balance_digs[0],
+                                               settings.liq_balance_digs[1])
+                    value_wei = net.web3.to_wei(value, 'ether')
+                    status, liq_value = self.liquidity_add(wallet, net, value_wei)
+                    wallet.liq += 1
+
+            if settings.liq_add == 0 and settings.liq_burn == 1:
+                if wallet.liq == 0:
+                    logger.cs_logger.info(f'***   Модуль Ликвидности   ***')
+                    if balance_lp > 0:
+                        self.liquidity_burn(wallet, net, balance_lp)
+                        wallet.liq += 1
+                    else:
+                        logger.cs_logger.info(f'Баланс LP токена равен 0.')
+                        wallet.liq += 2
 
             return liq_value
         except Exception as ex:

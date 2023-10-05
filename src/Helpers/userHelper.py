@@ -38,7 +38,15 @@ def get_info(wallets):
         logger.cs_logger.info(f'Модуль бриджа выключен')
 
     if stgs.switch_liq == 1:
-        logger.cs_logger.info(f'Модуль ликвидности включен. Шанс: {stgs.liq_chance}')
+        logger.cs_logger.info(f'Модуль ликвидности включен.')
+        if stgs.liq_add == 1:
+            logger.cs_logger.info(f'Добавление ликвидности включено.')
+        else:
+            logger.cs_logger.info(f'Добавление ликвидности отключено.')
+        if stgs.liq_burn == 1:
+            logger.cs_logger.info(f'Вывод ликвидности включен.')
+        else:
+            logger.cs_logger.info(f'Вывод ликвидности отключен.')
     else:
         logger.cs_logger.info(f'Модуль ликвидности отключен!')
 

@@ -10,3 +10,4 @@ class Wallet(object):
         self.txn_num = 0
         self.exc_bal_st = 0
         self.exc_bal_end = 0
+        self.liq = 0

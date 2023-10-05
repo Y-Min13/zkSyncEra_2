@@ -133,17 +133,10 @@ def main():
                     m_count += 1
 
                 if stgs.switch_liq == 1:
-                    duplicate = 0
-                    for mod in modules:
-                        if mod.mod == 'liq':
-                            chance = random.randint(1, 100)
-                            if chance <= stgs.liq_chance:
-                                duplicate += 1
-                            else:
-                                modules.remove(mod)
-                    for _ in range(duplicate):
-                        modules.append(Mods.Liquidity)
-                        random.shuffle(modules)
+                    modules.append(Mods.Liquidity)
+                    modules.append(Mods.Liquidity)
+                    random.shuffle(modules)
+                    m_count += 1
 
                 logger.cs_logger.info(f'Количество модулей: {m_count}')
                 for module in modules:
@@ -151,7 +144,7 @@ def main():
                     # Модуль Ликвидности
                     if module.mod == 'liq':
                         gpc.check_limit()
-                        logger.cs_logger.info(f'***   Модуль Ликвидности   ***')
+                        #logger.cs_logger.info(f'***   Модуль Ликвидности   ***')
                         liq = liquidity.Liquidity()
                         liq_value += liq.liquidity_op(wallet, nt.zkSyncEra)
 
