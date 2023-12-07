@@ -1,6 +1,7 @@
 import src.networkTokens as nt
 import time
 import settings as stgs
+from src.Helpers.helper import get_random_value
 
 
 def exec_txn(private_key, net, txn):
@@ -64,7 +65,8 @@ def check_tx_status(txn_hash, net, sec=3):
 
 def check_estimate_gas(txn, net):
     try:
-        estimate_gas = net.web3.eth.estimate_gas(txn)
+        gas_mult = get_random_value(stgs.gas_mult[0], stgs.gas_mult[1], 3)
+        estimate_gas = int(net.web3.eth.estimate_gas(txn) * gas_mult)
         return estimate_gas
     except Exception as ex:
         return f'Ошибка в (txnHelper: check_estimate_gas): {ex.args}'
