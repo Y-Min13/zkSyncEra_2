@@ -62,6 +62,10 @@ def withdraw(wallet, net):
     if settings.exc_mode == 2:
         wd_value = float(exc_balance)
 
+    if settings.exc_mode == 3:
+        sum_digs = random.randint(settings.exc_sum_digs[0], settings.exc_sum_digs[1])
+        wd_value = float(helper.get_random_value(settings.exc_sum[0], settings.exc_sum[1], sum_digs))
+
     wd_result, res = exc.withdraw_on_chain(wallet, wd_value, chain_info)
     if int(res) > 0:
         return f'Ошибка при выводе средств {wd_result}', res
