@@ -42,7 +42,7 @@ def withdraw(wallet, net):
     exc_balance, res = exc.get_balance_master()
     wallet.exc_bal_st = float(exc_balance)
 
-    logger.cs_logger.info(f'Вывод средств с биржи')
+    logger.cs_logger.info(f'Вывод средств с биржи | Баланс биржи: {exc_balance}')
 
     chain_info, res = exc.get_chain_info(net)
     if int(res) > 0:

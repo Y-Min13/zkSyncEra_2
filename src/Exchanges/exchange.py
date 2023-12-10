@@ -36,7 +36,7 @@ def withdraw_on_chain(wallet, amount_inp, info):
     min_wd = info['minWd']
 
     amount = amount_inp - float(fee)
-    logger.cs_logger.info(f'Выводим {amount} ETH в сеть {chain}')
+    logger.cs_logger.info(f'Выводим {amount} ETH в сеть {chain} | Коммиссия {fee}')
     if float(min_wd) > amount:
         #logger.cs_logger.info(f'Выводимая сумма ({amount}) меньше минимально допустимой: {min_wd}')
         return f'Выводимая сумма ({amount}) меньше минимально допустимой: {min_wd}', '420'

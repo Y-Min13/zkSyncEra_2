@@ -6,6 +6,13 @@ import src.logger as logger
 def get_info(wallets):
     if stgs.exc_withdraw == 1:
         logger.cs_logger.info(f'Вывод с биржи в сеть включен!')
+        if stgs.exc_mode == 1:
+            logger.cs_logger.info(f'Выводим {stgs.exc_percent[0] * 100} - {stgs.exc_percent[1] * 100} % от баланса')
+        if stgs.exc_mode == 2:
+            logger.cs_logger.info(f'Выводим весь доступный баланс')
+        if stgs.exc_mode == 3:
+            logger.cs_logger.info(f'Выводим сумму от {stgs.exc_sum[0]} до {stgs.exc_sum[1]} ETH')
+
     else:
         logger.cs_logger.info(f'Вывод с биржи в сеть отключен!')
 

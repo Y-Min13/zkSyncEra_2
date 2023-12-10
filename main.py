@@ -79,10 +79,13 @@ def main():
                     if bridge_mod == 1:
 
                         if stgs.exc_withdraw == 1:
-                            res, rc = okxOp.withdraw(wallet, net_from)
-                            if int(rc) > 0:
-                                logger.cs_logger.info(f'{res}')
-                                break
+                            rc = 1
+                            while int(rc) > 0:
+                                res, rc = okxOp.withdraw(wallet, net_from)
+                                if int(rc) > 0:
+                                    logger.cs_logger.info(f'{res}')
+                                    logger.cs_logger.info(f'Доп попытка вывода')
+                                    #break
 
                         bridge_vl, result = orbiterBridge.bridge(wallet, fee, net_from, net_to)
                         bridge_value += bridge_vl
@@ -94,10 +97,13 @@ def main():
                     if bridge_mod == 2:
 
                         if stgs.exc_withdraw == 1:
-                            res, rc = okxOp.withdraw(wallet, nb.ethereum_network)
-                            if int(rc) > 0:
-                                logger.cs_logger.info(f'{res}')
-                                break
+                            rc = 1
+                            while int(rc) > 0:
+                                res, rc = okxOp.withdraw(wallet, nb.ethereum_network)
+                                if int(rc) > 0:
+                                    logger.cs_logger.info(f'{res}')
+                                    logger.cs_logger.info(f'Доп попытка вывода')
+                                    #break
 
                         bridge_vl, result = syncBridge.bridge(wallet)
                         bridge_value += bridge_vl
