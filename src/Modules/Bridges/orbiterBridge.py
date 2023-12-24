@@ -86,7 +86,7 @@ def bridge(wallet, fee, net_from, net_to):
                     remains = helper.get_random_value(stgs.exc_remains[0], stgs.exc_remains[1],
                                                       stgs.rem_digs)
 
-                    if net_to.name != 'zkSyncEra':
+                    if net_to.code != 9014: #Код эры
                         wl_rem = helper.get_random_value(stgs.ob_remains2[0], stgs.ob_remains2[1], stgs.ob_digs2)
                     else:
                         wl_rem = helper.get_random_value(stgs.ob_remains1[0], stgs.ob_remains1[1], stgs.ob_digs1)
