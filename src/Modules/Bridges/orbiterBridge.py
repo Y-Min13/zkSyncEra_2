@@ -104,6 +104,10 @@ def bridge(wallet, fee, net_from, net_to):
                 if bridge_value < (net_from.web3.from_wei(fee + 9000 + net_from.web3.to_wei(0.005, "ether"), 'ether')):
                     logger.cs_logger.info(f'Сумма бриджа ниже минимальной величины! {net_from.web3.from_wei(txn["value"], "ether")}')
                     flag = False
+                if bridge_value > 3:
+                    logger.cs_logger.error(f'Сумма бриджа выше максимальной величины! {net_from.web3.from_wei(txn["value"], "ether")}')
+                    flag = False
+                    sys.exit()
                 if flag is True:
                     txn_hash, txn_status = txnHelper.exec_txn(wallet.key, net_from, txn)
                     logger.cs_logger.info(f'Hash бриджа: {txn_hash}')
