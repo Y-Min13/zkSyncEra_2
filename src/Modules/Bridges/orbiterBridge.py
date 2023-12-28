@@ -68,7 +68,7 @@ def bridge(wallet, fee, net_from, net_to):
             else:
                 if stgs.work_mode_bridge == 1:
 
-                    if net_from.name == 'Optimism':
+                    if net_from.code == 9007::
                         optimism_l1_fee = int(okxOp.get_optimism_l1_fee(net_from, b'') *
                                               helper.get_random_value(1.05, 1.10, 2))
 
@@ -79,7 +79,7 @@ def bridge(wallet, fee, net_from, net_to):
                     logger.cs_logger.info(f'Делаем бридж {bridge_value} ETH')
                 if stgs.work_mode_bridge == 2:
 
-                    if net_from.name == 'Optimism':
+                    if net_from.code == 9007: 
                         optimism_l1_fee = int(okxOp.get_optimism_l1_fee(net_from, b'') *
                                               helper.get_random_value(1.05, 1.10, 2))
 
