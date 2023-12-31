@@ -12,6 +12,7 @@ wallets = open('wallet.txt')   # Файл с приватниками
 log_file = 'ZkSyncEra logs.xlsx'  # Файл с результатами свапа
 slippage = 0.020  # Проскальзывание для Mute, Spacefi, Pancake и Maverick (2%)
 gas_mult = [1.05, 1.10]  # Множитель для количества газа транзакций
+max_priority = 0.1  # приоритет газа в Era
 
 
 #       / Параметры биржи /
