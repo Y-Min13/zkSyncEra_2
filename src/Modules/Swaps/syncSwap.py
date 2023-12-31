@@ -44,7 +44,7 @@ def build_txn_swap_in(address, value_eth):
 
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
-        max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
+        max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')
 
         dict_transaction = {
             'chainId': nt.zkSyncEra.web3.eth.chain_id,
@@ -76,7 +76,7 @@ def build_txn_swap_out(address, value):
 
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
-        max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
+        max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')
 
         dict_transaction = {
             'chainId': nt.zkSyncEra.web3.eth.chain_id,
