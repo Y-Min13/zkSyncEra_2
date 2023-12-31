@@ -25,7 +25,7 @@ def build_txn_swap_in(address, value, price):
         contract = contract_swap
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
-        max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
+        max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')
         value_wei = nt.zkSyncEra.web3.to_wei(value, 'ether')
         token_out_wei = int(float(value) * price * (10 ** 6))
         min_output = int(token_out_wei * (1 - slippage))
@@ -57,7 +57,7 @@ def build_txn_swap_out(address, value, price):
         contract = contract_swap
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
-        max_priority = nt.zkSyncEra.web3.to_wei(0.25, 'gWei')
+        max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')
         ether_out = value / price / 10**6
         min_output = int(nt.zkSyncEra.web3.to_wei(ether_out * (1 - slippage), 'ether'))
         dict_transaction = {
