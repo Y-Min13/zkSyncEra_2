@@ -37,7 +37,7 @@ networks.append(ethereum_network)
 zkSyncEra_network = Network(
     'zkSyncEra',
     stgs.zkSyncEra_rpc,
-    'Not Supported',
+    'ETH-zkSync Era',
     9014,
     0
 )

@@ -23,6 +23,8 @@ def get_info(wallets):
 
     bridge_info = ''
     if stgs.switch_bm1 == 1:
+        logger.cs_logger.info(f'Прямой вывод с биржи!')
+    if stgs.switch_bm1 == 2:
         if stgs.bridge_module == 0:
             bridge_info = 'Случайный бридж'
         if stgs.bridge_module == 1:
@@ -35,13 +37,14 @@ def get_info(wallets):
 
         if stgs.bridge_module == 2:
             bridge_info = 'Sync бридж'
-        logger.cs_logger.info(f'Модуль бриджа активирован: {bridge_info}')
+        logger.cs_logger.info(f'Вывод через бридж активирован: {bridge_info}')
 
         if stgs.work_mode_bridge == 1:
             logger.cs_logger.info(f'Бриджим часть баланса в пределах от {stgs.balance_percent_bridge_min} до {stgs.balance_percent_bridge_max}')
         if stgs.work_mode_bridge == 2:
             logger.cs_logger.info(f'Бриджим весь доступный баланс')
-    else:
+
+    if stgs.switch_bm1 == 0:
         logger.cs_logger.info(f'Модуль бриджа выключен')
 
     if stgs.switch_liq == 1:

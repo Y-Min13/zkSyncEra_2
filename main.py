@@ -49,8 +49,6 @@ def main():
             result = True
             net_from = helper.choice_net(networks, random.choice(stgs.net_from_code))
             connection2 = net_from.web3.is_connected()
-            if stgs.switch_bm1 == 1:
-                result = False
 
             wallet_num = wallet.wallet_num
             script_time = helper.get_curr_time()
@@ -69,8 +67,25 @@ def main():
                 f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
             balance_st = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
 
-            # Модуль с бриджем (bm)
+            # Прямой вывод средств с биржи
             if stgs.switch_bm1 == 1:
+                result = True
+                if stgs.exc_withdraw == 1:
+                    rc = 1
+                    while int(rc) > 0:
+                        res, rc = okxOp.withdraw(wallet, nb.zkSyncEra_network)
+                        if int(rc) > 0:
+                            logger.cs_logger.info(f'{res}')
+                            logger.cs_logger.info(f'Доп попытка вывода')
+
+                balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
+                nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
+                logger.write_overall(wallet, wallet_num, bridge_value, total_swap, nft_value, liq_value,
+                                     balance_st, balance_end, script_time, nonce)
+
+            # Вывод средств через бридж
+            if stgs.switch_bm1 == 2:
+                result = False
                 fee = net_from.web3.to_wei(helper.get_fee(net_from, net_to), 'ether')
 
                 logger.cs_logger.info(f'***   Модуль бриджа bm1   ***')
