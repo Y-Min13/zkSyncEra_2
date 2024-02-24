@@ -62,9 +62,9 @@ def main():
             else:
                 bridge_mod = stgs.bridge_module
 
-            logger.cs_logger.info(f'')
-            logger.cs_logger.info(
-                f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
+
+            logger.cs_logger.info(f'\n')
+            logger.cs_logger.info(f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
             balance_st = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
 
             # Прямой вывод средств с биржи
@@ -87,7 +87,7 @@ def main():
             if stgs.switch_bm1 == 2:
                 result = False
                 fee = net_from.web3.to_wei(helper.get_fee(net_from, net_to), 'ether')
-
+                logger.cs_logger.info(f'')
                 logger.cs_logger.info(f'***   Модуль бриджа bm1   ***')
                 if connection2 is True:
 
@@ -174,6 +174,7 @@ def main():
                         chance = random.randint(1, 100)
                         if chance <= stgs.domain_chance:
                             gpc.check_limit()
+                            logger.cs_logger.info(f'')
                             logger.cs_logger.info(f'***   Модуль Mint Домена   ***')
                             nft_value += eraNameMint.era_name_mint(wallet, nt.zkSyncEra)
                             #operation += 1
@@ -183,6 +184,7 @@ def main():
                         chance = random.randint(1, 100)
                         if chance <= stgs.teva_chance:
                             gpc.check_limit()
+                            logger.cs_logger.info(f'')
                             logger.cs_logger.info(f'***   Модуль TevaEra NFT Mint   ***')
                             nft_value += tevaEraMint.teva_era_mint(wallet, nt.zkSyncEra)
                             #operation += 1
@@ -193,6 +195,7 @@ def main():
                             chance = random.randint(1, 100)
                             if chance <= stgs.sm1_chance:
                                 gpc.check_limit()
+                                logger.cs_logger.info(f'')
                                 logger.cs_logger.info(f'***   Модуль свапа {module.name}   ***')
                                 total_swap += swapper.swap_module(wallet, module, swap_mode_step1, swap_mode_step2,
                                                                   swap_mode_step3, swap_mode_step4)
@@ -204,6 +207,7 @@ def main():
                             chance = random.randint(1, 100)
                             if chance <= stgs.sm2_chance:
                                 gpc.check_limit()
+                                logger.cs_logger.info(f'')
                                 logger.cs_logger.info(f'***   Модуль свапа {module.name}   ***')
                                 if module.swapper == 0:
                                     swap_mode_sm2 = random.randint(1, 5)
