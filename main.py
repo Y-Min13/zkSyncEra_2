@@ -15,6 +15,8 @@ import src.Modules.Modules as Mods
 import src.Modules.nftMints.tevaEraMint as tevaEraMint
 import src.Modules.nftMints.eraNameMint as eraNameMint
 import src.Modules.Liquidity.addLiquidity as liquidity
+from src.Modules.nftMints.rhinoMint import minting as rhino_mint
+
 
 # Параметры скрипта:
 wallets = stgs.wallets
@@ -159,6 +161,11 @@ def main():
                     random.shuffle(modules)
                     m_count += 1
 
+                if stgs.switch_rhino == 1:
+                    modules.append(Mods.RhinoMint)
+                    random.shuffle(modules)
+                    m_count += 1
+
                 logger.cs_logger.info(f'Количество модулей: {m_count}')
                 for module in modules:
 
@@ -188,6 +195,15 @@ def main():
                             logger.cs_logger.info(f'***   Модуль TevaEra NFT Mint   ***')
                             nft_value += tevaEraMint.teva_era_mint(wallet, nt.zkSyncEra)
                             #operation += 1
+
+                    # Модуль zkSync Era Hunter Rhino NFT
+                    if module.mod == 'rhino':
+                        chance = random.randint(1, 100)
+                        if chance <= stgs.rhino_chance:
+                            gpc.check_limit()
+                            logger.cs_logger.info(f'')
+                            logger.cs_logger.info(f'***   Модуль Mint Rhino   ***')
+                            nft_value += rhino_mint(wallet, nt.zkSyncEra)
 
                     # Модуль с несколькими свапалками (sm1)
                     if module.mod == 'sm1':

@@ -4,6 +4,20 @@ import settings as stgs
 from src.Helpers.helper import get_random_value
 
 
+def get_txn_dict(address, network, value=0, gas=650000):
+    gas_price = network.web3.eth.gas_price
+    nonce = network.web3.eth.get_transaction_count(address)
+    dict_transaction = {
+        'chainId': network.chain_id,
+        'from': address,
+        'value': value,
+        'gas': gas,
+        'gasPrice': gas_price,
+        'nonce': nonce,
+    }
+    return dict_transaction
+
+
 def exec_txn(private_key, net, txn):
     try:
         if stgs.test_mode == 0:

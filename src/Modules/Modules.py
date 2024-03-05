@@ -36,6 +36,11 @@ class DomainMint(object):
     name = 'domain'
 
 
+class RhinoMint(object):
+    mod = 'rhino'
+    name = 'rhino'
+
+
 class Liquidity(object):
     mod = 'liq'
     name = 'liquidity'

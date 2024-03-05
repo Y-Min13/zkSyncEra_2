@@ -70,6 +70,11 @@ def get_info(wallets):
     else:
         logger.cs_logger.info(f'EraNameService NFT Mint отключен!')
 
+    if stgs.switch_rhino == 1:
+        logger.cs_logger.info(f'Rhino NFT Mint включен. Шанс: {stgs.rhino_chance}')
+    else:
+        logger.cs_logger.info(f'Rhino NFT Mint отключен!')
+
     if stgs.switch_sm1 == 1:
         logger.cs_logger.info(f'Модуль sm1 активирован. Шанс: {stgs.sm1_chance}')
     else:
