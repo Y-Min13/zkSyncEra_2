@@ -64,7 +64,6 @@ def main():
             else:
                 bridge_mod = stgs.bridge_module
 
-
             logger.cs_logger.info(f'\n')
             logger.cs_logger.info(f'№ {op} ({wallet.wallet_num})  Адрес: {wallet.address}  Биржа: {wallet.exchange_address}')
             balance_st = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
@@ -238,8 +237,16 @@ def main():
                     logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, liq_value, balance_end, nonce)
                     wallet.operation = operation
 
-                if stgs.exc_deposit == 1:
-                    bridge_vl = 0
+                # Депозит на биржу в сети zkSyncEra
+                if stgs.switch_bridge_exc == 1:
+                    if stgs.exc_deposit == 1:
+                        okxOp.deposit(wallet, nb.zkSyncEra_network)
+                        balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
+                        nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
+                        logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, liq_value, balance_end, nonce)
+
+                # Депозит через бридж в другую сеть
+                if stgs.switch_bridge_exc == 2:
                     net_from = helper.choice_net(networks, random.choice(stgs.net_from_code))
                     fee = net_from.web3.to_wei(helper.get_fee(net_to, net_from), 'ether')
 
@@ -249,10 +256,10 @@ def main():
                         bridge_value += bridge_vl
                         balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
-
                         # Трансфер средств на адрес биржи
-                        okxOp.deposit(wallet, net_from)
-                        logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, liq_value, balance_end, nonce)
+                        if stgs.exc_deposit == 1:
+                            okxOp.deposit(wallet, net_from)
+                            logger.rewrite_overall(wallet, bridge_value, total_swap, nft_value, liq_value, balance_end, nonce)
                     else:
                         logger.cs_logger.info(f'Бридж не удался')
 

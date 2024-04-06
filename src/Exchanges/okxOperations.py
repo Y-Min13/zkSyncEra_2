@@ -89,7 +89,7 @@ def deposit(wallet, net):
 
         balance = net.web3.eth.get_balance(wallet.address)
         remains = helper.get_random_value(settings.exc_remains[0], settings.exc_remains[1], settings.rem_digs)
-        wl_rem = helper.get_random_value(settings.deposit_remains[0], settings.deposit_remains[1], settings.deposit_digs)
+        wl_rem = helper.get_random_value(settings.deposit_remains[0], settings.deposit_remains[1], settings.deposit_remains_digs)
         wl_rem_wei = net.web3.to_wei(wl_rem, 'ether')
         remains_wei = int(net.web3.to_wei(remains, 'ether') * tr_mult)
         open_balance = (balance - (gas_price * gas)) - remains_wei - wl_rem_wei
@@ -99,8 +99,10 @@ def deposit(wallet, net):
                                   helper.get_random_value(1.05, 1.10, 2))
             open_balance = open_balance - int(optimism_l1_fee * 2.1)
 
-        transfer_value = open_balance
-        txn_transfer = build_transfer_txn(wallet, net, transfer_value, gas, gas_price)
+        transfer_value_eth = helper.trunc_value(net.web3.from_wei(open_balance, "ether"), settings.deposit_digs[0], settings.deposit_digs[1])
+        logger.cs_logger.info(f'Сумма: {transfer_value_eth}')
+        transfer_value_wei = net.web3.to_wei(transfer_value_eth, 'ether')
+        txn_transfer = build_transfer_txn(wallet, net, transfer_value_wei, gas, gas_price)
         test = txnHelper.check_estimate_gas(txn_transfer, net)
         if type(test) is str:
             logger.cs_logger.info(f'{test}')
@@ -114,7 +116,8 @@ def deposit(wallet, net):
             else:
                 trying = False
             logger.cs_logger.info(f'Hash перевода на адрес биржи: {txn_tr_hash}')
-            logger.cs_logger.info('Ожидаем поступление средств на биржу')
 
-    exc_balance_new = exc.wait_deposit(balance_ms_old)
-    wallet.exc_bal_end = float(exc_balance_new)
+    if settings.sub_acc_transfer == 1:
+        logger.cs_logger.info('Ожидаем поступление средств на биржу')
+        exc_balance_new = exc.wait_deposit(balance_ms_old)
+        wallet.exc_bal_end = float(exc_balance_new)

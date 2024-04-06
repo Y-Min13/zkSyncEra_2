@@ -39,7 +39,7 @@ zkSyncEra_network = Network(
     stgs.zkSyncEra_rpc,
     'ETH-zkSync Era',
     9014,
-    0
+    [800_000, 1_200_000]
 )
 networks.append(zkSyncEra_network)
 
