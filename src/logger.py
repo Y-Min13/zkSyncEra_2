@@ -61,7 +61,7 @@ def create_xml(log_file):
         worksheet.cell(row=1, column=4).value = "Адрес кошелька"
         worksheet.cell(row=1, column=5).value = "Свап"
         worksheet.cell(row=1, column=6).value = "Сумма свапа ETH"
-        worksheet.cell(row=1, column=7).value = "Сумма свапа USDC"
+        worksheet.cell(row=1, column=7).value = "Сумма свапа токена"
         worksheet.cell(row=1, column=8).value = "Hash свапа"
         worksheet.cell(row=1, column=9).value = "Начальный баланс ETH"
         worksheet.cell(row=1, column=10).value = "Конечный баланс ETH"

@@ -85,6 +85,11 @@ def get_info(wallets):
     else:
         logger.cs_logger.info(f'Модуль sm2 выключен')
 
+    if stgs.switch_wrapper == 1:
+        logger.cs_logger.info(f'Модуль Wrapper активирован: Шанс: {stgs.wrapper_chance}')
+    else:
+        logger.cs_logger.info(f'Модуль Wrapper выключен')
+
     mods_str = 'Модули: '
     for mod in stgs.modules:
         mods_str += mod.name + ', '

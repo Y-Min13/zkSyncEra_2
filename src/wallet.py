@@ -11,3 +11,4 @@ class Wallet(object):
         self.exc_bal_st = 0
         self.exc_bal_end = 0
         self.liq = 0
+        self.swap_sum = 0

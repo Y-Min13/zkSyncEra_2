@@ -44,3 +44,11 @@ class RhinoMint(object):
 class Liquidity(object):
     mod = 'liq'
     name = 'liquidity'
+
+
+class Wrapper:
+    mod = 'wrapper'
+    name = 'wrapper'
+
+    def __init__(self, txns_count):
+        self.txns_count = txns_count

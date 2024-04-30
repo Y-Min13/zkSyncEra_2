@@ -34,7 +34,7 @@ if mode == 1:
         'wETH',
         '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'
     )
-
+    wETH_contract = zkSyncEra.web3.eth.contract(Web3.to_checksum_address(wETH_token_sync.address), abi=ABIs.wETH_ABI)
     wETH_token_mute = Token(
         'wETH',
         '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91'

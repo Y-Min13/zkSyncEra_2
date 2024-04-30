@@ -16,6 +16,7 @@ import src.Modules.nftMints.tevaEraMint as tevaEraMint
 import src.Modules.nftMints.eraNameMint as eraNameMint
 import src.Modules.Liquidity.addLiquidity as liquidity
 from src.Modules.nftMints.rhinoMint import minting as rhino_mint
+from src.Modules.Swaps.wrapper import wrapping
 
 
 # Параметры скрипта:
@@ -231,6 +232,18 @@ def main():
                                 total_swap += swapper.swap_module(wallet, module, swap_mode_sm2, swap_mode_sm2,
                                                                   swap_mode_sm2, swap_mode_sm2)
                                 operation += 1
+
+                    if module.name == 'wrapper':
+                        if stgs.switch_wrapper == 1:
+                            chance = random.randint(1, 100)
+                            if chance <= stgs.wrapper_chance:
+                                logger.cs_logger.info(f'')
+                                logger.cs_logger.info(f'***   Модуль свапа {module.name}   ***')
+                                wrapping(wallet, module)
+                                operation += 1
+                            else:
+                                logger.cs_logger.info(
+                                    f'В этот раз модуль не выполняется: {chance} > {stgs.wrapper_chance}')
 
                     balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                     nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)
