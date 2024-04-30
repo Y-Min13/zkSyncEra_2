@@ -17,13 +17,13 @@ if mode == 1:
     swap_contract_address = '0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4'
 if mode == 2:
     swap_contract_address = ''  # Тестовый
-contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address), abi=ABIs.MaverickSwap_ABI)
 pool_address = '41c8cf74c27554a8972d3bf3d2bd4a14d8b604ab'
 
 
 def build_txn_swap_in(address, value, price):
     try:
-        contract = contract_swap
+        contract = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address),
+                                                       abi=ABIs.MaverickSwap_ABI)
         slippage = stgs.slippage
         gas_price = nt.zkSyncEra.web3.eth.gas_price
         max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')
@@ -68,7 +68,8 @@ def build_txn_swap_in(address, value, price):
 def build_txn_swap_out(address, value, price):
     try:
         slippage = stgs.slippage
-        contract = contract_swap
+        contract = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address),
+                                                  abi=ABIs.MaverickSwap_ABI)
         nonce = nt.zkSyncEra.web3.eth.get_transaction_count(address)
         gas_price = nt.zkSyncEra.web3.eth.gas_price
         max_priority = nt.zkSyncEra.web3.to_wei(stgs.max_priority, 'gWei')

@@ -22,11 +22,11 @@ if mode == 1:
 if mode == 2:
     poolFactory_address = '0xf2FD2bc2fBC12842aAb6FbB8b1159a6a83E72006'  # Тестовый
     swap_contract_address = '0xB3b7fCbb8Db37bC6f572634299A58f51622A847e'  # Тестовый
-contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address), abi=ABIs.SyncSwap_ABI)
-contract_poolFactory = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(poolFactory_address), abi=ABIs.SyncSwap_PoolFactory_ABI)
 
 
 def get_pool():
+    contract_poolFactory = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(poolFactory_address),
+                                                          abi=ABIs.SyncSwap_PoolFactory_ABI)
     pool_address = contract_poolFactory.functions.getPool(
         nt.wETH_token_sync.address, nt.USDC_token.address
     ).call()
@@ -35,6 +35,8 @@ def get_pool():
 
 def build_txn_swap_in(address, value_eth):
     try:
+        contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address),
+                                                       abi=ABIs.SyncSwap_ABI)
         value = nt.zkSyncEra.web3.to_wei(value_eth, 'ether')
         pool_address = get_pool()
         remove_end = 1
@@ -68,7 +70,8 @@ def build_txn_swap_in(address, value_eth):
 def build_txn_swap_out(address, value):
     try:
         pool_address = get_pool()
-
+        contract_swap = nt.zkSyncEra.web3.eth.contract(nt.zkSyncEra.web3.to_checksum_address(swap_contract_address),
+                                                       abi=ABIs.SyncSwap_ABI)
         remove_end = 1
         swap_data = eth_abi.encode(['address', 'address', 'uint8'], [nt.USDC_token.address, address, remove_end])
         steps = [{'pool': pool_address, 'data': swap_data, 'callback': zero_address, 'callbackData': b'0x'}]
