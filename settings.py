@@ -68,6 +68,7 @@ switch_domain = 0  # Включить модуль минта домена eraNa
 switch_liq = 0  # Включить модуль ликвидности (liq)?
 switch_rhino = 0  # Включить модуль минтинга Rhino
 switch_wrapper = 0  # Включен ли модуль Wrap и Unwrap ETH
+switch_eralend = 1  # Включен ли модуль supply в Eralend
 
 #       / Параметры NFT /
 domain_max_param_length = 20  # Максимальная длина параметря для eraNameService (domain)
@@ -100,6 +101,7 @@ teva_chance = 100
 domain_chance = 100
 rhino_chance = 100
 wrapper_chance = 100  # Вероятность модуля Wrapper
+eralend_chance = 100  # Вероятность модуля Eralend
 
 #       / Параметры для выбора свапалок /
 # Выбор свапалки для модуля с разными свапалками (sm1):
@@ -160,6 +162,14 @@ gas_price_limit_bridge = 30  # Лимит цены газа (gWei) для бри
 
 random_mult_max = 1.20  # Максимальный множитель цены газа для транзакции бриджа
 random_mult_min = 1.15  # Минимальный множитель цены газа для транзакции бриджа
+
+attempts_num = 3  # Максимальное количество попыток для LayerBank и объемных модулей
+
+#       / Настройки модуля Eralend /
+eralend_balance_percent = (0.20, 0.40)  # Процент баланса для модуля Eralend
+redeem_sleep_time = (30, 40)  # Время задержки перед выводом средств из Eralend
+eralend_volume_enable = 1  # Включен ли режим объема для Eralend
+eralend_volume = (9, 12)  # Минимальный объем USD для supply в Eralend
 
 
 #       / Переменные для работы скрипта /

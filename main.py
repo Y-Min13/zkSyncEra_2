@@ -17,6 +17,7 @@ import src.Modules.nftMints.eraNameMint as eraNameMint
 import src.Modules.Liquidity.addLiquidity as liquidity
 from src.Modules.nftMints.rhinoMint import minting as rhino_mint
 from src.Modules.Swaps.wrapper import wrapping
+from src.Modules.Supply.eralend import supply_ops
 
 
 # Параметры скрипта:
@@ -166,6 +167,10 @@ def main():
                     random.shuffle(modules)
                     m_count += 1
 
+                if stgs.switch_eralend == 1:
+                    modules.append(Mods.Eralend)
+                    random.shuffle(modules)
+
                 logger.cs_logger.info(f'Количество модулей: {m_count}')
                 for module in modules:
 
@@ -244,6 +249,16 @@ def main():
                             else:
                                 logger.cs_logger.info(
                                     f'В этот раз модуль не выполняется: {chance} > {stgs.wrapper_chance}')
+
+                    if module.name == 'eralend':
+                        chance = random.randint(1, 100)
+                        if chance <= stgs.eralend_chance:
+                            logger.cs_logger.info(f'')
+                            logger.cs_logger.info(f'***   Модуль {module.name}   ***')
+                            supply_ops(wallet)
+                            operation += 1
+                        else:
+                            logger.cs_logger.info(f'В этот раз модуль не выполняется: {chance} > {stgs.eralend_chance}')
 
                     balance_end = nt.zkSyncEra.web3.from_wei(nt.zkSyncEra.web3.eth.get_balance(wallet.address), 'ether')
                     nonce = nt.zkSyncEra.web3.eth.get_transaction_count(wallet.address)

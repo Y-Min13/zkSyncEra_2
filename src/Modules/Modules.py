@@ -52,3 +52,8 @@ class Wrapper:
 
     def __init__(self, txns_count):
         self.txns_count = txns_count
+
+
+class Eralend:
+    mod = 'eralend'
+    name = 'eralend'

@@ -90,6 +90,14 @@ def get_info(wallets):
     else:
         logger.cs_logger.info(f'Модуль Wrapper выключен')
 
+    if stgs.switch_eralend == 1:
+        logger.cs_logger.info(f'Модуль Eralend включен: вероятность = {stgs.eralend_chance} %')
+        if stgs.eralend_volume_enable == 1:
+            logger.cs_logger.info(f'Выбран режим объема: от {stgs.eralend_volume[0]} до {stgs.eralend_volume[1]} $')
+        logger.cs_logger.info(f'Время задержки перед выводом: от {stgs.redeem_sleep_time[0]} до {stgs.redeem_sleep_time[1]} сек')
+    else:
+        logger.cs_logger.info(f'Модуль Eralend отключен')
+
     mods_str = 'Модули: '
     for mod in stgs.modules:
         mods_str += mod.name + ', '

@@ -112,6 +112,21 @@ def create_xml(log_file):
         workbook.save(log_file)
         workbook.close()
 
+        worksheet = workbook.create_sheet('Supply transactions')
+        worksheet.cell(row=1, column=1).value = "№ кошелька"
+        worksheet.cell(row=1, column=2).value = "№ транзакции"
+        worksheet.cell(row=1, column=3).value = "Адрес кошелька"
+        worksheet.cell(row=1, column=4).value = "Операция"
+        worksheet.cell(row=1, column=5).value = "Сумма supply ETH"
+        worksheet.cell(row=1, column=6).value = "Сумма redeem "
+        worksheet.cell(row=1, column=7).value = "Hash свапа"
+        worksheet.cell(row=1, column=8).value = "Нач. баланс ETH"
+        worksheet.cell(row=1, column=9).value = "Кон. баланс ETH"
+        worksheet.cell(row=1, column=10).value = "Нач. баланс Токена"
+        worksheet.cell(row=1, column=11).value = "Кон. баланс Токена"
+        worksheet.cell(row=1, column=12).value = "Время"
+        workbook.save(log_file)
+
 
 class LogLiquidity(object):
     def __init__(self, wallet, txn_hash, value_eth, value_lp, balance_st, balance_end, script_time):
@@ -442,6 +457,59 @@ class LogBridge(object):
                 last_row = worksheet.max_row
                 worksheet.cell(row=last_row, column=7).value = self.balance_from_end
                 worksheet.cell(row=last_row, column=10).value = self.balance_to_end
+                workbook.save(log_file)
+                workbook.close()
+                break
+            except PermissionError:
+                cs_logger.info(f'Не получается сохранить файл! Закройте Excel. Нажмите Enter для продолжения...')
+                input("")
+
+
+class SupplyLog(object):
+    def __init__(self, wallet_num, txn_num, address, swapper, value, hash_txn,
+                 balance_start_eth, balance_end_eth, balance_start_token, balance_end_token):
+        self.wallet_num = wallet_num
+        self.txn_num = txn_num
+        self.address = address
+        self.swapper = swapper
+        self.value = value
+        self.hash_txn = hash_txn
+        self.balance_start_eth = balance_start_eth
+        self.balance_end_eth = balance_end_eth
+        self.balance_start_token = balance_start_token
+        self.balance_end_token = balance_end_token
+
+    def write_log(self, token, script_time):
+        while True:
+            try:
+                log_file = stgs.log_file
+                workbook = openpyxl.load_workbook(log_file)
+                worksheet = workbook['Supply transactions']
+                last_row = worksheet.max_row
+                worksheet.cell(row=last_row + 1, column=1).value = self.wallet_num
+                worksheet.cell(row=last_row + 1, column=2).value = self.txn_num
+                worksheet.cell(row=last_row + 1, column=3).value = f'{self.address}'
+                worksheet.cell(row=last_row + 1, column=4).value = f'{self.swapper}'
+
+                if token == 1:
+                    worksheet.cell(row=last_row + 1, column=5).value = self.value
+                    worksheet.cell(row=last_row + 1, column=5).number_format = '0.00000'
+                    worksheet.cell(row=last_row + 1, column=6).value = ''
+                if token == 2:
+                    worksheet.cell(row=last_row + 1, column=5).value = ''
+                    worksheet.cell(row=last_row + 1, column=6).value = self.value
+                    worksheet.cell(row=last_row + 1, column=6).number_format = '0.00000'
+
+                worksheet.cell(row=last_row + 1, column=7).value = f'{self.hash_txn}'
+                worksheet.cell(row=last_row + 1, column=8).value = self.balance_start_eth
+                worksheet.cell(row=last_row + 1, column=8).number_format = '0.00000'
+                worksheet.cell(row=last_row + 1, column=9).value = self.balance_end_eth
+                worksheet.cell(row=last_row + 1, column=9).number_format = '0.00000'
+                worksheet.cell(row=last_row + 1, column=10).value = self.balance_start_token
+                worksheet.cell(row=last_row + 1, column=10).number_format = '0.00000'
+                worksheet.cell(row=last_row + 1, column=11).value = self.balance_end_token
+                worksheet.cell(row=last_row + 1, column=11).number_format = '0.00000'
+                worksheet.cell(row=last_row + 1, column=12).value = f'{script_time}'
                 workbook.save(log_file)
                 workbook.close()
                 break
